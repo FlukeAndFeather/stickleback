@@ -6,7 +6,7 @@ setup(
     description="Detect point behaviors in longitudinal sensor data",
     author="Max Czapanskiy",
     packages=find_packages(exclude=['notebooks']),
-    package_data={'stickleback': ['data/*']}
+    package_data={'stickleback': ['data/*']},
     install_requires=[
             "jupyter~=1.0",
             "matplotlib~=3.4",
