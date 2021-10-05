@@ -4,7 +4,7 @@ Instructions for updating the README.
 
 2) Restart the kernel and run all.
 
-3) From the command line, run `jupyter nbconvert --to markdown --output-dir='.' docs\README\README.ipynb -TagRemovePreprocessor.remove_all_outputs_tags='{nbconvert-skip}'`.
+3) From the command line, run `jupyter nbconvert --to markdown --output-dir='.' docs/README/README.ipynb --TagRemovePreprocessor.remove_all_outputs_tags="{'nbconvert-skip'}"`.
 
 4) Commit and push to GitHub.
 
