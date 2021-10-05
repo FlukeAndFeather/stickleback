@@ -8,9 +8,7 @@ from plotly.subplots import make_subplots
 import stickleback.util as sb_util
 
 from stickleback.types import *
-from typing import Dict, Tuple, Union
-
-from pdb import set_trace
+from typing import Dict, Union
 
 figure_T = Union[plotlyFigure, matplotlibFigure]
 
@@ -18,6 +16,19 @@ def plot_sensors_events(deployid: str,
                         sensors: sensors_T, 
                         events: events_T, 
                         interactive=True) -> figure_T:
+    """Plot sensor data and labeled events.
+
+    Args:
+        deployid (str): Deployment ID to plot.
+        sensors (Dict[str, pd.DataFrame]): Sensor data.
+        events (Dict[str, pd.DatetimeIndex]): Labeled events.
+        interactive (bool, optional): Interaction flag. If True, produces an 
+            interactive plotly figure. Else, a static matplotlib figure. 
+            Defaults to True.
+
+    Returns:
+        Union[plotlyFigure, matplotlibFigure]: Figure with sensors and events.
+    """
     _sensors = sensors[deployid]
     _events = _sensors.loc[events[deployid]]
     
@@ -26,7 +37,18 @@ def plot_sensors_events(deployid: str,
     else:
         return __plot_sensors_events_static(_sensors, _events)
 
-def __plot_sensors_events_interactive(sensors, event_sensors) -> plotlyFigure:
+def __plot_sensors_events_interactive(sensors: pd.DataFrame, 
+                                      event_sensors: pd.DataFrame) -> plotlyFigure:
+    """Plot sensors and events interactively.
+
+    Args:
+        sensors (pd.DataFrame): Sensor data for one deployment.
+        event_sensors (pd.DataFrame): Sensor data at event times for one 
+            deployment.
+
+    Returns:
+        plotlyFigure: Interactive plotly figure.
+    """
     fig = make_subplots(rows=len(sensors.columns), cols=1,
                         shared_xaxes=True,)
     for i, col in enumerate(sensors.columns):
@@ -45,8 +67,18 @@ def __plot_sensors_events_interactive(sensors, event_sensors) -> plotlyFigure:
     fig.update_layout(showlegend=False)
     return fig
 
-# FIXME (maybe? might still work)
-def __plot_sensors_events_static(sensors, event_sensors) -> matplotlibFigure:
+def __plot_sensors_events_static(sensors: pd.DataFrame, 
+                                 event_sensors: pd.DataFrame) -> matplotlibFigure:
+    """Plot sensors and events statically.
+
+    Args:
+        sensors (pd.DataFrame): Sensor data for one deployment.
+        event_sensors (pd.DataFrame): Sensor data at event times for one 
+            deployment.
+
+    Returns:
+        matplotlibFigure: Static matplotlib figure.
+    """
     fig, axs = plt.subplots(len(sensors.columns), 1)
     for i, col in enumerate(sensors.columns):
         # sensor data
@@ -58,8 +90,6 @@ def __plot_sensors_events_static(sensors, event_sensors) -> matplotlibFigure:
                        edgecolors="r", 
                        zorder=2)
         axs[i].set_ylabel(col)
-        if col == "depth":
-            axs[i].invert_yaxis()
         
     return fig
 
@@ -68,6 +98,22 @@ def plot_predictions(deployid: str,
                      predictions: prediction_T,
                      outcomes: outcomes_T = None, 
                      interactive: bool = True) -> figure_T:
+    """Plot model predictions.
+
+    Args:
+        deployid (str): Deployment ID to plot.
+        sensors (Dict[str, pd.DataFrame]): Sensor data.
+        predictions (Dict[str, Tuple[pd.Series, pd.DatetimeIndex]]): Model 
+            predictions (as from Stickleback.predict()).
+        outcomes (Dict[str, pd.Series], optional): Prediction outcomes (as from
+            Stickleback.assess()). Defaults to None.
+        interactive (bool, optional): Interaction flag. If True, produces an 
+            interactive plotly figure. Else, a static matplotlib figure. 
+            Defaults to True.
+
+    Returns:
+        Union[plotlyFigure, matplotlibFigure]: Figure with model predictions.
+    """
     lcl, gbl = predictions[deployid]
     data = sensors[deployid].join(lcl)
 
@@ -80,13 +126,25 @@ def plot_predictions(deployid: str,
         actual_only = data.loc[actual_idx].join(outcomes[deployid])
 
     if interactive:
-        return __plot_predictions_interactive(data, predicted_only, actual_only)
+        return __plot_predictions_interactive(data, predicted_only, 
+                                              actual_only)
     else:
         return __plot_predictions_static(data, predicted_only, actual_only)
 
 def __plot_predictions_interactive(data: pd.DataFrame, 
                                    predicted: pd.DataFrame, 
-                                   actual: pd.DataFrame) -> plotlyFigure:
+                                   actual: pd.DataFrame = None) -> plotlyFigure:
+    """Plot model predictions interactively.
+
+    Args:
+        data (pd.DataFrame): Sensor data for one deployment.
+        predicted (pd.DataFrame): Sensor data at predicted event times.
+        actual (pd.DataFrame, optional): Sensor data at actual event times.
+            Defaults to None.
+
+    Returns:
+        plotlyFigure: Interactive plotly figure.
+    """
     fig = make_subplots(rows=len(data.columns), cols=1,
                         shared_xaxes=True,)
 
@@ -127,8 +185,20 @@ def __plot_predictions_interactive(data: pd.DataFrame,
     fig.update_layout(showlegend=False)
     return fig
 
-# FIXME
-def __plot_predictions_static(data, predicted, actual) -> matplotlibFigure:
+def __plot_predictions_static(data: pd.DataFrame, 
+                              predicted: pd.DataFrame, 
+                              actual: pd.DataFrame = None) -> matplotlibFigure:
+    """Plot model predictions statically.
+
+    Args:
+        data (pd.DataFrame): Sensor data for one deployment.
+        predicted (pd.DataFrame): Sensor data at predicted event times.
+        actual (pd.DataFrame, optional): Sensor data at actual event times. 
+            Defaults to None.
+
+    Returns:
+        matplotlibFigure: Static matplotlib figure.
+    """
     fig, axs = plt.subplots(len(data.columns), 1)
     for i, col in enumerate(data):
         # sensor data
@@ -146,13 +216,24 @@ def __plot_predictions_static(data, predicted, actual) -> matplotlibFigure:
                                     for o in actual["outcome"]],
                         facecolors="none",
                         zorder=3)
-        if col == "depth":
-            axs[i].invert_yaxis()
         
     return fig
 
-def outcome_table(outcomes: Dict[str, pd.Series],
+def outcome_table(outcomes: outcomes_T,
                   sensors: sensors_T) -> pd.DataFrame:
+    """Create a table of model prediction outcomes.
+
+    Args:
+        outcomes (Dict[str, pd.Series]): Model prediction outcomes (as from 
+            Stickleback.assess()).
+        sensors (Dict[str, pd.DataFrame]): Sensor data.
+
+    Returns:
+        pd.DataFrame: A table of prediction outcomes. Each row is a deployment.
+            Columns are F1 score (F1); number of true positives (TP), false 
+            positives (FP), and false negatives (FN); and deployment duration 
+            in hours (Duration (hours)).
+    """
     def add_deployid(d, o):
         result = pd.DataFrame(o)
         result.insert(0, "deployid", np.full(len(o), [d]))

@@ -4,6 +4,15 @@ from typing import Dict, Tuple
 
 def load_lunges() -> Tuple[Dict[str, pd.DataFrame], 
                            Dict[str, pd.DatetimeIndex]]:
+    """Load sample data.
+
+    Loads a small dataset containing six blue whale deployments and labeled 
+    lunge-feeding behaviors.
+
+    Returns:
+        Tuple[Dict[str, pd.DataFrame], Dict[str, pd.DatetimeIndex]]: Sensors 
+            and events, in Stickleback format.
+    """
     sensors_file = (pkg_resources
                     .resource_filename('stickleback', 'data/sensors.csv'))
     sensors_csv = pd.read_csv(sensors_file)

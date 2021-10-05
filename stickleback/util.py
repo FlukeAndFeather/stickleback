@@ -8,6 +8,19 @@ from typing import Collection, Dict, Tuple, Union
 def extract_nested(sensors: sensors_T, 
                    idx: Dict[str, pd.DatetimeIndex], 
                    win_size: int) -> nested_T:
+    """Extract windows from sensor data in sktime nested DataFrame format.
+
+    Args:
+        sensors (Dict[str, pd.DataFrame]): Sensor data.
+        idx (Dict[str, pd.DatetimeIndex]): Dict of indicies, keyed by 
+            deployment ID. Each output window will be centered on one of these
+            indices.
+        win_size (int): Window size.
+
+    Returns:
+        Dict[str, pd.DataFrame]: Dict of data windows in sktime nested 
+            DataFrame format.
+    """
     win_size_2 = int(win_size / 2)
 
     def _extract(_deployid: str, _idx: pd.DatetimeIndex):
@@ -29,6 +42,20 @@ def extract_all(sensors: sensors_T,
                 nth: int, 
                 win_size: int, 
                 mask: mask_T = None) -> nested_T:
+    """Extract all windows from sensor data in sktime nested DataFrame format.
+
+    Args:
+        sensors (Dict[str, pd.DataFrame]): Sensor data.
+        nth (int): Sliding window step size.
+        win_size (int): Window size.
+        mask (mask_T, optional): Window mask. Only windows in sensors[
+            deployid] where mask[deployid] is True will be extracted. If None, 
+            no mask applied. Defaults to None.
+
+    Returns:
+        Dict[str, pd.DataFrame]: Dict of data windows in sktime nested 
+            DataFrame format.
+    """
     if mask is None:
         mask = {d: np.full(len(sensors[d]), True) for d in sensors}
         
@@ -48,6 +75,21 @@ def sample_nonevents(sensors: sensors_T,
                      win_size: int, 
                      mask: mask_T = None, 
                      seed: int = None) -> nested_T:
+    """Randomly sample non-event windows from sensor data.
+
+    Args:
+        sensors (Dict[str, pd.DataFrame]): Sensor data.
+        events (Dict[str, pd.DatetimeIndex]): Labeled events.
+        win_size (int): Window size.
+        mask (Dict[str, np.ndarray], optional): Window mask. Only windows in 
+            sensors[deployid] where mask[deployid] is True will be extracted. 
+            If None, no mask applied. Defaults to None.
+        seed (int, optional): Random number generator seed. Defaults to None.
+
+    Returns:
+        Dict[str, pd.DataFrame]: Dict of data windows in sktime nested 
+            DataFrame format.
+    """
     win_size_2 = int(win_size / 2)
     rg = np.random.Generator(np.random.PCG64(seed))
     if mask is None:
@@ -74,27 +116,65 @@ def sample_nonevents(sensors: sensors_T,
     return extract_nested(sensors, idx, win_size)
 
 def align_events(events: events_T, sensors: sensors_T) -> events_T:
+    """Align labeled events with sensor data indices.
+
+    Args:
+        events (Dict[str, pd.DatetimeIndex]): Labeled events
+        sensors (Dict[str, pd.DataFrame]): Sensor data
+
+    Returns:
+        Dict[str, pd.DatetimeIndex]: As events, but times shifted to closest 
+            index in sensors.
+    """
     return {d: sensors[d].index[sensors[d].index.searchsorted(e)] 
             for d, e in events.items()}
 
 def filter_dict(d: Dict, ks: Collection) -> Dict:
+    """Filter a dict by keys.
+
+    Args:
+        d (Dict): A dictionary.
+        ks (Collection): Keys to keep.
+
+    Returns:
+        Dict: d, but with only the keys in ks.
+    """
     return {k: v for k, v in d.items() if k in ks}
 
 def save_fitted(sb: "Stickleback", 
                 fp: str,
                 sensors: sensors_T = None, 
                 events: events_T = None, 
-                mask: mask_T = None, 
-                predicted: prediction_T = None) -> None:
-    objects = (sb, sensors, events, mask, predicted)
+                mask: mask_T = None) -> None:
+    """Save a fitted Stickleback model.
+
+    Args:
+        sb (Stickleback): Stickleback model.
+        fp (str): File path.
+        sensors (Dict[str, pd.DataFrame], optional): Sensor data used to fit 
+            model. Defaults to None.
+        events (Dict[str, pd.DatetimeIndex], optional): Labeled events used to 
+            fit model. Defaults to None.
+        mask (Dict[str, np.ndarray], optional): Mask used to fit model. 
+            Defaults to None.
+    """
+    objects = (sb, sensors, events, mask,)
     with open(fp, 'wb') as f:
         pickle.dump(objects, f)
         
 def load_fitted(fp: str) -> Tuple["Stickleback", 
                                   sensors_T, 
                                   events_T, 
-                                  mask_T, 
-                                  prediction_T]:
+                                  mask_T]:
+    """Load a fitted Stickleback model.
+
+    Returns:
+        A tuple containing:
+            The fitted Stickleback model
+            The sensor data used to fit the model (possibly None).
+            The labeled events used to fit the model (possibly None).
+            The mask used to fit the model (possibly None).
+    """
     with open(fp, 'rb') as f:
         result = pickle.load(f)
     
@@ -103,4 +183,14 @@ def load_fitted(fp: str) -> Tuple["Stickleback",
 def f1(tps: Union[float, pd.Series],
        fps: Union[float, pd.Series],
        fns: Union[float, pd.Series]) -> Union[float, pd.Series]:
+    """Calculate F1 score
+
+    Args:
+        tps (Union[float, pd.Series]): Count(s) of true positives.
+        fps (Union[float, pd.Series]): Count(s) of false positives.
+        fns (Union[float, pd.Series]): Count(s) of false negatives.
+
+    Returns:
+        Union[float, pd.Series]: F1 score(s).
+    """
     return tps / (tps + (fps + fns) / 2)
