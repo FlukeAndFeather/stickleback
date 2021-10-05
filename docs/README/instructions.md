@@ -1,6 +1,6 @@
 Instructions for updating the README.
 
-1) Cells with plotly outputs (e.g. using plot_predictions()) should not be rendered to the README. Create a GIF of the plot in action (e.g. using Quicktime or Windows Game Bar) and save it to docs/resources. Reference the GIF with ![alt text here](docs/resources/name-of-gif.gif). Note: the GIF will not show up properly in the notebook because the README will live in the root directory. Then add an 'nbconvert-skip' cell tag.
+1) Cells with plotly outputs (e.g. using plot_predictions()) should not be rendered to the README. Create a GIF of the plot in action (e.g. using Quicktime or Windows Game Bar) and save it to docs/resources. Reference the GIF with `![alt text here](docs/resources/name-of-gif.gif)`. Note: the GIF will not show up properly in the notebook because the README will live in the root directory. Then add an 'nbconvert-skip' cell tag.
 
 2) Restart the kernel and run all.
 
