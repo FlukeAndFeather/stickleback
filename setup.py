@@ -1,11 +1,20 @@
-from setuptools import setup, find_packages
+import pathlib
+from setuptools import setup
 
+README = (pathlib.Path(__file__).parent / "README.md").read_text()
 
 setup(
     name="stickleback",
-    description="Detect point behaviors in longitudinal sensor data",
+    version="0.1.1",
+    description="Automated behavioral event detection in bio-logging data.",
+    long_description=README,
+    long_description_content_type="text/markdown",
+    url="http://github.com/FlukeAndFeather/stickleback",
     author="Max Czapanskiy",
-    packages=find_packages(exclude=['notebooks']),
+    author_email="maxczapanskiy@gmail.com",
+    license="MIT",
+    packages=['stickleback'],
+    include_package_data=True,
     package_data={'stickleback': ['data/*']},
     install_requires=[
             "jupyter~=1.0",

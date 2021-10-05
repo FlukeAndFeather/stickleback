@@ -4,9 +4,9 @@
 
 ## Installation
 
-Install from GitHub using pip.
+Install with pip.
 
-```pip3 install git+git://www.github.com/FlukeAndFeather/stickleback.git```
+`pip install stickleback`
 
 ## Key concepts
 
@@ -43,6 +43,130 @@ test_deployids = list(sensors.keys())[0:2]
 sensors_test, sensors_train = split_dict(sensors, test_deployids)
 events_test, events_train = split_dict(events, test_deployids)
 ```
+
+
+```python
+sensors[test_deployids[0]]
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>depth</th>
+      <th>pitch</th>
+      <th>roll</th>
+      <th>speed</th>
+    </tr>
+    <tr>
+      <th>datetime</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2018-09-05 11:55:52.400</th>
+      <td>14.911083</td>
+      <td>-0.059933</td>
+      <td>-0.012899</td>
+      <td>4.274450</td>
+    </tr>
+    <tr>
+      <th>2018-09-05 11:55:52.500</th>
+      <td>14.910864</td>
+      <td>-0.067072</td>
+      <td>-0.010815</td>
+      <td>4.044154</td>
+    </tr>
+    <tr>
+      <th>2018-09-05 11:55:52.600</th>
+      <td>14.915853</td>
+      <td>-0.075173</td>
+      <td>-0.008335</td>
+      <td>3.820568</td>
+    </tr>
+    <tr>
+      <th>2018-09-05 11:55:52.700</th>
+      <td>14.923190</td>
+      <td>-0.085225</td>
+      <td>-0.005727</td>
+      <td>3.602702</td>
+    </tr>
+    <tr>
+      <th>2018-09-05 11:55:52.800</th>
+      <td>14.928955</td>
+      <td>-0.096173</td>
+      <td>-0.002803</td>
+      <td>3.432342</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>2018-09-05 13:55:51.900</th>
+      <td>22.552306</td>
+      <td>-0.010861</td>
+      <td>0.005441</td>
+      <td>2.246061</td>
+    </tr>
+    <tr>
+      <th>2018-09-05 13:55:52.000</th>
+      <td>22.571625</td>
+      <td>-0.010534</td>
+      <td>0.004674</td>
+      <td>2.257525</td>
+    </tr>
+    <tr>
+      <th>2018-09-05 13:55:52.100</th>
+      <td>22.588129</td>
+      <td>-0.010081</td>
+      <td>0.003841</td>
+      <td>2.267966</td>
+    </tr>
+    <tr>
+      <th>2018-09-05 13:55:52.200</th>
+      <td>22.603341</td>
+      <td>-0.009627</td>
+      <td>0.003042</td>
+      <td>2.272327</td>
+    </tr>
+    <tr>
+      <th>2018-09-05 13:55:52.300</th>
+      <td>22.619537</td>
+      <td>-0.009355</td>
+      <td>0.002164</td>
+      <td>2.277328</td>
+    </tr>
+  </tbody>
+</table>
+<p>72000 rows × 4 columns</p>
+</div>
+
+
 
 ### Visualize sensor and event data
 
@@ -149,18 +273,18 @@ stickleback.visualize.outcome_table(outcomes, sensors_test)
   <tbody>
     <tr>
       <th>bw180905-49</th>
-      <td>0.966292</td>
-      <td>43</td>
-      <td>2</td>
+      <td>0.965517</td>
+      <td>42</td>
       <td>1</td>
+      <td>2</td>
       <td>1.999972</td>
     </tr>
     <tr>
       <th>bw180905-53</th>
-      <td>0.943396</td>
-      <td>25</td>
-      <td>2</td>
+      <td>0.981132</td>
+      <td>26</td>
       <td>1</td>
+      <td>0</td>
       <td>1.999972</td>
     </tr>
   </tbody>
