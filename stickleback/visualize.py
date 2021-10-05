@@ -164,6 +164,10 @@ def outcome_table(outcomes: Dict[str, pd.Series],
               .size()
               .unstack(fill_value=0))
     
+    for o in ["TP", "FP", "FN"]:
+        if o not in result:
+            result[o] = 0
+    
     result["F1"] = sb_util.f1(result["TP"], result["FP"], result["FN"])
     
     dur_dict = {k: (v.index[-1] - v.index[0]) / pd.Timedelta(hours=1) 
@@ -172,16 +176,9 @@ def outcome_table(outcomes: Dict[str, pd.Series],
     durations.columns = ["Duration (hours)"]
     result = result.join(durations)
     
-    true_rate = (result["TP"] + result["FN"]) / result["Duration (hours)"]
-    result["True rate (events/hr)"] = true_rate
-    pred_rate = (result["TP"] + result["FP"]) / result["Duration (hours)"]
-    result["Pred. rate (events/hr)"] = pred_rate
-    
     result = result[["F1", 
                      "TP", 
                      "FP", 
                      "FN", 
-                     "True rate (events/hr)",
-                     "Pred. rate (events/hr)",
                      "Duration (hours)"]]
     return result
