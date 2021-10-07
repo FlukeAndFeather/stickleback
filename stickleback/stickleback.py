@@ -37,7 +37,8 @@ class Stickleback:
                  tol: pd.Timedelta, 
                  nth: int = 1, 
                  n_folds: int = 5, 
-                 max_events: int = None) -> None:
+                 max_events: int = None,
+                 seed: int = None) -> None:
         """Initialize a Stickleback object
 
         Args:
@@ -51,6 +52,9 @@ class Stickleback:
             max_events (int, optional): Maximum number of labeled events to 
                 include in model training. If None, uses all events. Defaults 
                 to None.
+            seed (int, optional): Seed for random number generation. Note: this 
+                only applies to Stickleback methods; if local_clf uses random
+                numbers then its seed needs to be set separately.
         """
         self.local_clf = local_clf
         self.__local_clf2 = sklearn.clone(local_clf)
@@ -60,6 +64,7 @@ class Stickleback:
         self.nth = nth
         self.n_folds = n_folds
         self.max_events = max_events
+        self.seed = seed
 
     def fit(self, 
             sensors: sensors_T, 
@@ -82,7 +87,7 @@ class Stickleback:
             if n_events.sum() <= self.max_events:
                 training_events = events
             else:
-                rg = np.random.Generator(np.random.PCG64())
+                rg = np.random.Generator(np.random.PCG64(self.seed))
                 keep = self.max_events / n_events.sum()
                 training_events = {k: rg.choice(v, 
                                                 size=int(len(v)*keep), 
@@ -94,9 +99,10 @@ class Stickleback:
                                                self.win_size)
         event_X = pd.concat(events_nested.values())
         nonevents_nested = sb_util.sample_nonevents(sensors, 
-                                            training_events, 
-                                            self.win_size,
-                                            mask)
+                                                    training_events, 
+                                                    self.win_size,
+                                                    mask,
+                                                    self.seed)
         nonevent_X = pd.concat(nonevents_nested.values())
         local_X = event_X.append(nonevent_X)
         event_y = np.full(len(event_X), 1.0)
@@ -164,8 +170,25 @@ class Stickleback:
         pred_gbl = {k: v[1] for k, v in predicted.items()}
         for deployid in pred_gbl:
             _predicted, _actual = pred_gbl[deployid], events[deployid]
+            # Handle edge cases for no predicted/actual events
+            if len(_predicted) == 0 and len(_actual) > 0:
+                return pd.Series("FN",
+                                 index=_actual,
+                                 dtype="string",
+                                 name="outcome")
+           
+            if len(_predicted) > 0 and len(_actual) == 0:
+                return pd.Series("FP",
+                                 index=_predicted,
+                                 dtype="string",
+                                 name="outcome")
+           
+            if len(_predicted) == 0 and len(_actual) == 0:
+                return pd.Series([],
+                                 dtype="string",
+                                 name="outcome")
+            
             # Find closest predicted to each actual and their distance
-            # TODO handle no predicted events case
             closest = _predicted[[np.argmin(np.abs(_predicted - e)) 
                                   for e in _actual]]
             distance = np.abs(_actual - closest)

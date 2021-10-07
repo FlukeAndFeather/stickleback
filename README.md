@@ -179,7 +179,7 @@ deployid = list(sensors.keys())[0]
 stickleback.visualize.plot_sensors_events(deployid, sensors, events)
 ```
 
-![Animated loop of interactively exploring data with plot_sensors_events()](docs/resources/plot-sensors-events.gif)
+![Animated loop of interactively exploring data with plot_sensors_events()](https://github.com/FlukeAndFeather/stickleback/raw/main/docs/resources/plot-sensors-events.gif)
 
 ### Define model
 
@@ -189,7 +189,8 @@ Initialize a `Stickleback` model using Supervised Time Series Forests and a 10 s
 ```python
 # Supervised Time Series Forests ensembled across the columns of `sensors`
 cols = sensors[list(sensors.keys())[0]].columns
-tsc = sktime.classification.interval_based.SupervisedTimeSeriesForest(n_estimators=2)
+tsc = sktime.classification.interval_based.SupervisedTimeSeriesForest(n_estimators=2,
+                                                                      random_state=4321)
 stsf = sktime.classification.compose.ColumnEnsembleClassifier(
     estimators = [('STSF_{}'.format(col),
                    tsc,
@@ -202,7 +203,8 @@ sb = Stickleback(
     win_size=50,
     tol=pd.Timedelta("5s"),
     nth=10,
-    n_folds=4
+    n_folds=4,
+    seed=1234
 )
 ```
 
@@ -273,18 +275,18 @@ stickleback.visualize.outcome_table(outcomes, sensors_test)
   <tbody>
     <tr>
       <th>bw180905-49</th>
-      <td>0.965517</td>
-      <td>42</td>
-      <td>1</td>
-      <td>2</td>
+      <td>1.000000</td>
+      <td>44</td>
+      <td>0</td>
+      <td>0</td>
       <td>1.999972</td>
     </tr>
     <tr>
       <th>bw180905-53</th>
-      <td>0.981132</td>
-      <td>26</td>
+      <td>0.943396</td>
+      <td>25</td>
+      <td>2</td>
       <td>1</td>
-      <td>0</td>
       <td>1.999972</td>
     </tr>
   </tbody>
@@ -302,4 +304,4 @@ stickleback.visualize.plot_predictions(deployid,
                                        outcomes)
 ```
 
-![Animated loop of interactively exploring predictions with plot_predictions()](docs/resources/plot-predictions.gif)
+![Animated loop of interactively exploring predictions with plot_predictions()](https://github.com/FlukeAndFeather/stickleback/raw/main/docs/resources/plot-predictions.gif)
