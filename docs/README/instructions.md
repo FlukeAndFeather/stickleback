@@ -6,6 +6,8 @@ Instructions for updating the README.
 
 3) From the command line, run `jupyter nbconvert --to markdown --output-dir='.' docs/README/README.ipynb --TagRemovePreprocessor.remove_all_outputs_tags="{'nbconvert-skip'}"`.
 
-4) Commit and push to GitHub.
+4) Clear notebook outputs (this keeps the file size small enough for GitHub).
+
+5) Commit and push to GitHub.
 
 You did it! Thanks for keeping the documentation up to date.
