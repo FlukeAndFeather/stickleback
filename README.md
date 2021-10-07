@@ -179,7 +179,7 @@ deployid = list(sensors.keys())[0]
 stickleback.visualize.plot_sensors_events(deployid, sensors, events)
 ```
 
-![Animated loop of interactively exploring data with plot_sensors_events()](docs/resources/plot-sensors-events.gif)
+![Animated loop of interactively exploring data with plot_sensors_events()](https://github.com/FlukeAndFeather/stickleback/raw/main/docs/resources/plot-predictions.gif)
 
 ### Define model
 
@@ -304,4 +304,4 @@ stickleback.visualize.plot_predictions(deployid,
                                        outcomes)
 ```
 
-![Animated loop of interactively exploring predictions with plot_predictions()](docs/resources/plot-predictions.gif)
+![Animated loop of interactively exploring predictions with plot_predictions()](https://github.com/FlukeAndFeather/stickleback/raw/main/docs/resources/plot-sensors-events.gif)
