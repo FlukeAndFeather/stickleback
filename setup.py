@@ -5,7 +5,7 @@ README = (pathlib.Path(__file__).parent / "README.md").read_text()
 
 setup(
     name="stickleback",
-    version="0.1.2",
+    version="0.1.4",
     description="Automated behavioral event detection in bio-logging data.",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -19,7 +19,7 @@ setup(
     install_requires=[
             "jupyter",
             "matplotlib",
-            "numpy",
+            "numpy<=1.20",
             "pandas",
             "plotly",
             "scikit-learn",

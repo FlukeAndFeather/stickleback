@@ -172,43 +172,41 @@ class Stickleback:
             _predicted, _actual = pred_gbl[deployid], events[deployid]
             # Handle edge cases for no predicted/actual events
             if len(_predicted) == 0 and len(_actual) > 0:
-                return pd.Series("FN",
-                                 index=_actual,
-                                 dtype="string",
-                                 name="outcome")
-           
-            if len(_predicted) > 0 and len(_actual) == 0:
-                return pd.Series("FP",
-                                 index=_predicted,
-                                 dtype="string",
-                                 name="outcome")
-           
-            if len(_predicted) == 0 and len(_actual) == 0:
-                return pd.Series([],
-                                 dtype="string",
-                                 name="outcome")
-            
-            # Find closest predicted to each actual and their distance
-            closest = _predicted[[np.argmin(np.abs(_predicted - e)) 
-                                  for e in _actual]]
-            distance = np.abs(_actual - closest)
-            
-            # Initialize outcomes
-            outcomes = pd.Series(index=_predicted, 
-                                 dtype="string", 
-                                 name="outcome")
+                outcomes = pd.Series("FN",
+                                     index=_actual,
+                                     dtype="string",
+                                     name="outcome")
+            elif len(_predicted) > 0 and len(_actual) == 0:
+                outcomes = pd.Series("FP",
+                                     index=_predicted,
+                                     dtype="string",
+                                     name="outcome")
+            elif len(_predicted) == 0 and len(_actual) == 0:
+                outcomes = pd.Series([],
+                                     dtype="string",
+                                     name="outcome")
+            else:
+                # Find closest predicted to each actual and their distance
+                closest = _predicted[[np.argmin(np.abs(_predicted - e)) 
+                                    for e in _actual]]
+                distance = np.abs(_actual - closest)
+                
+                # Initialize outcomes
+                outcomes = pd.Series(index=_predicted, 
+                                    dtype="string", 
+                                    name="outcome")
 
-            # Iterate through actual events. The closest predicted event within
-            # the tolerance is a true positive. If no predicted events are
-            # within the tolerance, the actual event is a false negative.
-            for i, (c, d) in enumerate(zip(closest, distance)):
-                if d <= self.tol:
-                    outcomes[c] = "TP" 
-                else:
-                    outcomes[_actual[i]] = "FN"
+                # Iterate through actual events. The closest predicted event within
+                # the tolerance is a true positive. If no predicted events are
+                # within the tolerance, the actual event is a false negative.
+                for i, (c, d) in enumerate(zip(closest, distance)):
+                    if d <= self.tol:
+                        outcomes[c] = "TP" 
+                    else:
+                        outcomes[_actual[i]] = "FN"
 
-            # Remaining predictions are false positives
-            outcomes[outcomes.isna()] = "FP"
+                # Remaining predictions are false positives
+                outcomes[outcomes.isna()] = "FP"
 
             result[deployid] = outcomes
             
