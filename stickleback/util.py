@@ -74,7 +74,7 @@ def sample_nonevents(sensors: sensors_T,
                      events: events_T, 
                      win_size: int, 
                      mask: mask_T = None, 
-                     seed: int = None) -> nested_T:
+                     rng: np.random.Generator = None) -> nested_T:
     """Randomly sample non-event windows from sensor data.
 
     Args:
@@ -91,7 +91,6 @@ def sample_nonevents(sensors: sensors_T,
             DataFrame format.
     """
     win_size_2 = int(win_size / 2)
-    rg = np.random.Generator(np.random.PCG64(seed))
     if mask is None:
         mask = {d: np.full(len(sensors[d]), True) for d in sensors}
 
@@ -108,9 +107,9 @@ def sample_nonevents(sensors: sensors_T,
         diff_from_event = _diff_from(nonevent_choices, 
                                      _sensors.index.searchsorted(_events))
         nonevent_choices = nonevent_choices[diff_from_event > win_size]
-        return _sensors.index[rg.choice(nonevent_choices, 
-                                        size=len(_events), 
-                                        replace=True)]
+        return _sensors.index[rng.choice(nonevent_choices, 
+                                         size=len(_events), 
+                                         replace=True)]
 
     idx = {d: _sample(sensors[d], events[d], mask[d]) for d in sensors}
     return extract_nested(sensors, idx, win_size)
@@ -158,7 +157,7 @@ def save_fitted(sb: "Stickleback",
         mask (Dict[str, np.ndarray], optional): Mask used to fit model. 
             Defaults to None.
     """
-    objects = (sb, sensors, events, mask,)
+    objects = (sb, sensors, events, mask)
     with open(fp, 'wb') as f:
         pickle.dump(objects, f)
         

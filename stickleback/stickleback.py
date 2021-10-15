@@ -65,6 +65,7 @@ class Stickleback:
         self.n_folds = n_folds
         self.max_events = max_events
         self.seed = seed
+        self.rng = np.random.Generator(np.random.PCG64(seed))
 
     def fit(self, 
             sensors: sensors_T, 
@@ -87,11 +88,10 @@ class Stickleback:
             if n_events.sum() <= self.max_events:
                 training_events = events
             else:
-                rg = np.random.Generator(np.random.PCG64(self.seed))
                 keep = self.max_events / n_events.sum()
-                training_events = {k: rg.choice(v, 
-                                                size=int(len(v)*keep), 
-                                                replace=False) 
+                training_events = {k: self.rng.choice(v, 
+                                                      size=int(len(v)*keep), 
+                                                      replace=False) 
                                    for k, v in events.items()}
                 
         events_nested = sb_util.extract_nested(sensors, 
@@ -102,7 +102,7 @@ class Stickleback:
                                                     training_events, 
                                                     self.win_size,
                                                     mask,
-                                                    self.seed)
+                                                    self.rng)
         nonevent_X = pd.concat(nonevents_nested.values())
         local_X = event_X.append(nonevent_X)
         event_y = np.full(len(event_X), 1.0)
