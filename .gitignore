@@ -6,3 +6,4 @@ dist/*
 stickleback.egg-info*
 stickleback/__pycache__*
 
+tests/__pycache__/*
