@@ -104,7 +104,7 @@ class Stickleback:
                                                     mask,
                                                     self.rng)
         nonevent_X = pd.concat(nonevents_nested.values())
-        local_X = event_X.append(nonevent_X)
+        local_X = pd.concat([event_X, nonevent_X])
         event_y = np.full(len(event_X), 1.0)
         nonevent_y = np.full(len(nonevent_X), 0.0)
         local_y = np.concatenate([event_y, nonevent_y])
@@ -123,7 +123,7 @@ class Stickleback:
         outcomes = self.assess(predictions, events)
         boosted_nonevents = self._boost(nonevents_nested, sensors, outcomes)
         n_nonevents = np.sum([len(v) for v in boosted_nonevents.values()])
-        boosted_X = event_X.append(pd.concat(boosted_nonevents.values()))
+        boosted_X = pd.concat([event_X, pd.concat(boosted_nonevents.values())])
         boosted_y = np.concatenate([event_y, np.full(n_nonevents, 0.0)])
         self._fit_local(boosted_X, boosted_y)
         self._fit_global(events_nested, 
@@ -306,7 +306,7 @@ class Stickleback:
             nonevent_train_X = pd.concat([v 
                                           for k, v in nonevents_nested.items() 
                                           if k in deployids[train_idx]])
-            train_X = event_train_X.append(nonevent_train_X)
+            train_X = pd.concat([event_train_X, nonevent_train_X])
             train_y = np.concatenate([np.full(len(event_train_X), 1.0), 
                                       np.full(len(nonevent_train_X), 0.0)])
             test_sensors = sb_util.filter_dict(sensors, deployids[test_idx])
