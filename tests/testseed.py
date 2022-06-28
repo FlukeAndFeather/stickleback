@@ -6,13 +6,17 @@ from stickleback.stickleback import Stickleback
 import stickleback.data
 import stickleback.util
 import unittest
+from numpy.random import default_rng
 
 # Load sample data
 sensors, events = stickleback.data.load_lunges()
 
 # Split into test and train (2 deployments each)
-train_deployids = list(sensors.keys())[0:2]
-test_deployids = list(sensors.keys())[2:4]
+rng = default_rng(12345)
+key_list = list(sensors.keys())
+rng.shuffle(list(key_list))  # randomize key order inplace
+test_deployids = key_list[0:2]
+train_deployids = key_list[2:]
 sensors_train = {k: sensors[k] for k in train_deployids}
 sensors_test = {k: sensors[k] for k in test_deployids}
 events_train = {k: events[k] for k in train_deployids}
