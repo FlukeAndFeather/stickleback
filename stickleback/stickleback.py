@@ -74,11 +74,14 @@ class Stickleback:
         """Fits a Stickleback model.
 
         Args:
-            sensors (Dict[str, pd.DataFrame]): Sensor data as a dictionary of
+            sensors (Dict[str, pd.DataFrame]): Sensor data.
             events (Dict[str, pd.DatetimeIndex]): Labeled events.
             mask (Dict[str, np.ndarray], optional): Training mask. Only trains 
                 model on windows in sensors[deployid] where mask[deployid] is 
                 True. If None, no mask applied. Defaults to None.
+
+            See data.py for a detailed description of the required Stickleback
+            format for the `sensors` and `events` data objects.
         """
         # Local step
         if self.max_events is None:
