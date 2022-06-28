@@ -79,6 +79,9 @@ class Stickleback:
             mask (Dict[str, np.ndarray], optional): Training mask. Only trains 
                 model on windows in sensors[deployid] where mask[deployid] is 
                 True. If None, no mask applied. Defaults to None.
+
+            See data.py for a detailed description of the required Stickleback
+            format for the `sensors` and `events` data objects.
         """
         # Local step
         if self.max_events is None:
@@ -154,7 +157,9 @@ class Stickleback:
         return {d: (local_proba[d], global_pred[d]) for d in global_pred}
 
     def assess(self, predicted: prediction_T, events: events_T) -> outcomes_T:
-        """Assess prediction accuracy
+        """Assess prediction accuracy to determine if each data point is a
+                true positive, false negative, etc. according to the prediction
+                `predicted`.
 
         Args:
             predicted (Dict[str, Tuple[pd.Series, pd.DatetimeIndex]]): Model 
@@ -284,8 +289,8 @@ class Stickleback:
         Args:
             events_nested (Dict[str, pd.DataFrame]): A dictionary of sensor 
                 data windows containing labeled events, keyed by deployment ID.
-            nonevents_nested (Dict[str, pd.DataFrame]): As events_nested, but 
-                windows contain non-events.
+            nonevents_nested (Dict[str, pd.DataFrame]): Same as events_nested, 
+                but windows contain non-events.
             sensors (Dict[str, pd.DataFrame]): Sensor data.
             events (Dict[str, pd.DatetimeIndex]): Labeled events.
             mask (Dict[str, np.ndarray]): Training mask.
@@ -357,6 +362,21 @@ class Stickleback:
                nonevents: nested_T, 
                sensors: sensors_T, 
                outcomes: outcomes_T) -> nested_T:
+        """Select false positive samples from initial training round to add to 
+                nonevent samples for boosted training round.
+
+        Args:
+            nonevents (Dict[str, pd.Series]): A dictionary of sensor 
+                data windows containing non-events, keyed by deployment ID.
+            sensors (Dict[str, pd.DataFrame]): Complete sensor training data.
+            outcomes (Dict[str, pd.Series]): A dictionary of prediction outcome 
+                Series with values in ("TP", "FP", and "FN") keyed by deployment
+                ID.
+
+        Returns:
+            Dict[str, pd.Series]: Dictionary of sensor data windows containing 
+            non-events with a boosted number of FP events, keyed by deployment ID.
+        """
         fps = {d: o.index[o == "FP"] for d, o in outcomes.items()}
         nested_fps = sb_util.extract_nested(sensors, fps, self.win_size)
         boosted_nonevents = dict()
